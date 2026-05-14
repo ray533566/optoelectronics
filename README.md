@@ -1,4 +1,4 @@
-# 祥茂光電 Engineering Knowledge Portal
+# Knowledge Portal
 
 Internal knowledge portal hosted on GitHub Pages.
 
