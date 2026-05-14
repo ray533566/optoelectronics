@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Optical Transceiver 知識入口</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <!-- Google Charts -->
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <!-- PyScript -->
+  <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css"/>
+  <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+
+  <style>
+    :root {
+      --bg:       #0a0e17;
+      --surface:  #111827;
+      --border:   #1e3a5f;
+      --accent:   #00c8ff;
+      --accent2:  #00ffc8;
+      --text:     #c9d8e8;
+      --muted:    #4a6080;
+      --red:      #ff4d6d;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Noto Sans TC', sans-serif;
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: linear-gradient(135deg, #0a0e17 0%, #0d1f3c 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 40px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .logo-dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 12px var(--accent);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity: 1; }
+      50%      { opacity: 0.3; }
+    }
+    header h1 {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 1.4rem;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+    }
+    header p {
+      font-size: 0.75rem;
+      color: var(--muted);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+    .header-right {
+      margin-left: auto;
+      text-align: right;
+    }
+    #today {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.9rem;
+      color: var(--accent2);
+    }
+    #pi-display {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    /* ── MAIN LAYOUT ── */
+    .main-wrapper {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 30px 40px;
+    }
+
+    /* ── SECTION TITLE ── */
+    .section-title {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── RESOURCE TABLE ── */
+    .resource-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 6px;
+      margin-bottom: 40px;
+    }
+    .resource-table thead th {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 8px 16px;
+      background: transparent;
+      border: none;
+    }
+    .resource-table tbody tr {
+      background: var(--surface);
+      transition: background 0.2s;
+    }
+    .resource-table tbody tr:hover {
+      background: #162035;
+    }
+    .resource-table td {
+      padding: 14px 16px;
+      vertical-align: middle;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .resource-table td:first-child {
+      border-left: 1px solid var(--border);
+      border-radius: 6px 0 0 6px;
+    }
+    .resource-table td:last-child {
+      border-right: 1px solid var(--border);
+      border-radius: 0 6px 6px 0;
+    }
+    .tag {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-family: 'Share Tech Mono', monospace;
+      letter-spacing: 0.05em;
+    }
+    .tag-blue  { background: #0d2a4a; color: var(--accent);  border: 1px solid #1a4a7a; }
+    .tag-green { background: #0a2a20; color: var(--accent2); border: 1px solid #1a5a40; }
+    .tag-red   { background: #2a0d15; color: var(--red);     border: 1px solid #5a1a25; }
+    .tag-gray  { background: #1a1f2e; color: #7a9ab8;        border: 1px solid #2a3550; }
+
+    .resource-desc {
+      font-size: 0.85rem;
+      color: var(--text);
+    }
+    .resource-desc small {
+      display: block;
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .btn-link-gdrive {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-family: 'Share Tech Mono', monospace;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .btn-link-gdrive:hover {
+      background: #0d2a4a;
+      border-color: var(--accent);
+      color: var(--accent);
+      box-shadow: 0 0 8px rgba(0,200,255,0.2);
+    }
+    .btn-link-gdrive svg {
+      flex-shrink: 0;
+    }
+
+    /* ── GAUGE SECTION ── */
+    .gauge-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+    .gauge-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+    }
+    .gauge-card h4 {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      color: var(--muted);
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 16px 40px;
+      text-align: center;
+      font-size: 0.7rem;
+      color: var(--muted);
+      font-family: 'Share Tech Mono', monospace;
+      letter-spacing: 0.1em;
+    }
+
+    /* Google Chart background fix for dark theme */
+    .google-visualization-tooltip { background: #162035 !important; }
+  </style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="logo-dot"></div>
+  <div>
+    <h1>Techology</h1>
+    <p>Engineering Knowledge Portal</p>
+  </div>
+  <div class="header-right">
+    <div id="today">載入中...</div>
+    <div id="pi-display">π ≈ ...</div>
+  </div>
+</header>
+
+<!-- ── PyScript: date + π calculation ── -->
+<py-script>
+import datetime as dt
+from pyscript import display, document
+
+def wallis(n):
+    pi = 2
+    for i in range(1, n):
+        pi *= 4 * i ** 2 / (4 * i ** 2 - 1)
+    return pi
+
+pi = wallis(100000)
+document.getElementById("today").innerText = dt.date.today().strftime('%A  %B %d,  %Y')
+document.getElementById("pi-display").innerText = f"π ≈ {pi:.6f}"
+</py-script>
+
+<!-- ── MAIN ── -->
+<div class="main-wrapper">
+
+  <!-- Resource Links -->
+  <div class="section-title">技術資源 // Technical Resources</div>
+
+  <table class="resource-table">
+    <thead>
+      <tr>
+        <th>分類</th>
+        <th>說明</th>
+        <th>連結</th>
+      </tr>
+    </thead>
+    <tbody>
+
+      <tr>
+        <td><span class="tag tag-blue">Keysight</span></td>
+        <td class="resource-desc">
+          FlexDCA CDR+CDA 使用說明
+          <small>FlexPLL User Guide — HTML Help</small>
+        </td>
+        <td>
+          <!-- ★ REPLACE: paste your Google Drive shareable link for FlexDCA help folder -->
+          <a class="btn-link-gdrive" href="PASTE_GOOGLE_DRIVE_LINK_FLEXDCA" target="_blank">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            開啟文件
+          </a>
+        </td>
+      </tr>
+
+      <tr>
+        <td><span class="tag tag-gray">IEEE</span></td>
+        <td class="resource-desc">
+          IEEE 802.3bm-2015 Define &amp; Spec
+          <small>PDF — 100G Fibre Optic Standard</small>
+        </td>
+        <td>
+          <!-- ★ REPLACE: paste your Google Drive shareable link for IEEE802.3bm-2015.pdf -->
+          <a class="btn-link-gdrive" href="PASTE_GOOGLE_DRIVE_LINK_IEEE" target="_blank">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            開啟文件
+          </a>
+        </td>
+      </tr>
+
+      <tr>
+        <td><span class="tag tag-green">HR</span></td>
+        <td class="resource-desc">
+          HR 員工自助系統
+          <small>Human Resources Portal</small>
+        </td>
+        <td>
+          <!-- ★ This is an internal URL — only works on company intranet -->
+          <a class="btn-link-gdrive" href="http://twhrportal.ao-inc.home/wSMA_LOGIN/Default.aspx" target="_blank">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            HR 入口 (Intranet)
+          </a>
+        </td>
+      </tr>
+
+      <tr>
+        <td><span class="tag tag-blue">Python</span></td>
+        <td class="resource-desc">
+          Read Excel by Python — 範例腳本
+          <small>openpyxl / pandas 參考資料</small>
+        </td>
+        <td>
+          <!-- ★ REPLACE: paste your Google Drive shareable link for Python scripts folder -->
+          <a class="btn-link-gdrive" href="PASTE_GOOGLE_DRIVE_LINK_PYTHON" target="_blank">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            開啟資料夾
+          </a>
+        </td>
+      </tr>
+
+      <tr>
+        <td><span class="tag tag-gray">研發處</span></td>
+        <td class="resource-desc">
+          TW 研發處參考資料庫
+          <small>Internal R&amp;D Reference Documents</small>
+        </td>
+        <td>
+          <!-- ★ REPLACE: paste your Google Drive shareable link for R&D reference folder -->
+          <a class="btn-link-gdrive" href="PASTE_GOOGLE_DRIVE_LINK_RD" target="_blank">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            研發資料夾
+          </a>
+        </td>
+      </tr>
+
+      <tr>
+        <td><span class="tag tag-red">EXFO</span></td>
+        <td class="resource-desc">
+          800G OSFP SR8 AOC — EXFO 設備教學影片
+          <small>Maxlinear DSP V2.0 DVT Videos</small>
+        </td>
+        <td>
+          <!-- ★ REPLACE: paste your Google Drive shareable link for EXFO video folder -->
+          <a class="btn-link-gdrive" href="PASTE_GOOGLE_DRIVE_LINK_EXFO" target="_blank">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+            影片資料夾
+          </a>
+        </td>
+      </tr>
+
+    </tbody>
+  </table>
+
+  <!-- Gauges -->
+  <div class="section-title">即時監控 // Live Monitor</div>
+  <div class="gauge-grid">
+    <div class="gauge-card">
+      <h4>Channel 1</h4>
+      <div id="chart_div"></div>
+    </div>
+    <div class="gauge-card">
+      <h4>Channel 2</h4>
+      <div id="chart1_div"></div>
+    </div>
+    <div class="gauge-card">
+      <h4>Channel 3</h4>
+      <div id="chart2_div"></div>
+    </div>
+  </div>
+
+</div><!-- /main-wrapper -->
+
+<footer>
+  創新未來 &nbsp;·&nbsp; 卓越高效 &nbsp;·&nbsp; 優美品質 &nbsp;·&nbsp; Optical © 2025
+</footer>
+
+<!-- ── Google Charts Gauges ── -->
+<script>
+  google.charts.load('current', { packages: ['gauge'] });
+  google.charts.setOnLoadCallback(drawGauges);
+
+  function drawGauges() {
+    const opts = {
+      width: 220, height: 220,
+      redFrom: 90,    redTo: 100,
+      yellowFrom: 75, yellowTo: 90,
+      greenFrom: 50,  greenTo: 75,
+      minorTicks: 5,
+    };
+
+    const makeData = (label, val) =>
+      google.visualization.arrayToDataTable([['Label','Value'],[label, val]]);
+
+    const d0 = makeData('CH1', 1);
+    const d1 = makeData('CH2', 2);
+    const d2 = makeData('CH3', 2);
+
+    const c0 = new google.visualization.Gauge(document.getElementById('chart_div'));
+    const c1 = new google.visualization.Gauge(document.getElementById('chart1_div'));
+    const c2 = new google.visualization.Gauge(document.getElementById('chart2_div'));
+
+    c0.draw(d0, opts); c1.draw(d1, opts); c2.draw(d2, opts);
+
+    setInterval(() => { d0.setValue(0,1, 40 + Math.round(50*Math.random())); c0.draw(d0, opts); }, 800);
+    setInterval(() => { d1.setValue(0,1, 40 + Math.round(50*Math.random())); c1.draw(d1, opts); }, 900);
+    setInterval(() => { d2.setValue(0,1, 40 + Math.round(50*Math.random())); c2.draw(d2, opts); }, 700);
+  }
+</script>
+
+</body>
+</html>
